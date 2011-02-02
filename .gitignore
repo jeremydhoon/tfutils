@@ -1,0 +1,8 @@
+*~
+*.pyc
+build/*
+*.pdf
+*.aux
+*.log
+*.sqlite
+.DS_Store
