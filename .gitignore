@@ -4,5 +4,6 @@ build/*
 *.pdf
 *.aux
 *.log
+*.out
 *.sqlite
 .DS_Store
