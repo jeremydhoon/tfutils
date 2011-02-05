@@ -8,3 +8,4 @@ build/*
 *.sqlite
 .DS_Store
 versions/tarballs/tarball_*.tar.gz
+versions/versioninfo.js
