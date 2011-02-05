@@ -6,11 +6,13 @@ updatemanager.py -- checks for updates to tfutils on GitHub and retrieves them.
 
 import datetime
 import json
+import os
 from os import path
 import time
 import urllib
 
 VERSIONS_DIR_PATH = path.join(path.dirname(path.abspath(__file__)), "versions")
+TARBALL_DIR_PATH = path.join(VERSIONS_DIR_PATH, "tarballs")
 ORIGIN_CONFIG_PATH = path.join(VERSIONS_DIR_PATH, "origin.js")
 VERSIONS_INFO_PATH = path.join(VERSIONS_DIR_PATH, "versioninfo.js")
 GITHUB_DOMAIN = "github.com"
@@ -88,7 +90,9 @@ def download_tarball(dictOriginConfig,sBranchType):
     sBranch = dictOriginConfig["branches"][sBranchType]
     sUrl = github_tarball(sUser,sRepo,sBranch)
     sFilename = tarball_filename()
-    urllib.urlretrieve(sUrl, path.join(VERSIONS_DIR_PATH, sFilename))
+    if not path.exists(TARBALL_DIR_PATH):
+        os.makedirs(TARBALL_DIR_PATH)
+    urllib.urlretrieve(sUrl, path.join(TARBALL_DIR_PATH, sFilename))
     return sFilename
 
 def check_for_updates():

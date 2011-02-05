@@ -7,4 +7,4 @@ build/*
 *.out
 *.sqlite
 .DS_Store
-versions/tarball_*.tar.gz
+versions/tarballs/tarball_*.tar.gz
