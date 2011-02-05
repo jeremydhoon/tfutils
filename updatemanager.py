@@ -9,6 +9,7 @@ import json
 import os
 from os import path
 import re
+import tarfile
 import time
 import urllib
 
@@ -17,6 +18,7 @@ TARBALL_DIR_PATH = path.join(VERSIONS_DIR_PATH, "tarballs")
 ORIGIN_CONFIG_PATH = path.join(VERSIONS_DIR_PATH, "origin.js")
 VERSIONS_INFO_PATH = path.join(VERSIONS_DIR_PATH, "versioninfo.js")
 GITHUB_DOMAIN = "github.com"
+UNPACK_DIR_PATH = path.dirname(path.dirname(path.abspath(__file__)))
 
 TARBALL_RE = re.compile(r"^tarball_\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2}"
                         r"\.tar\.gz$")
@@ -111,9 +113,14 @@ def check_for_updates():
     cmtVersion = load_version_commit()
     return is_update_available(cmtLatest,cmtVersion)
 
+def unpack_tarball(sTarballFilename, sUnpackOnto):
+    tf = tarfile.open(sTarballFilename)
+    tf.extractall(sUnpackOnto)
+
 def deploy_updates():
     dictOriginConfig = load_origin_config()
     sFilename = download_tarball(dictOriginConfig,"master")
+    unpack_tarball(sFilename, UNPACK_DIR_PATH)
 
 def main(argv):
     print check_for_updates()
