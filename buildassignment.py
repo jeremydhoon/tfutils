@@ -22,7 +22,7 @@ import tftask
 
 MODULE_KEYS = ("testmodule", "workmodule", "taskmodule",)
 TFUTILS_FILES = ("serveui.py", "tftask.py", "monitortests.py", "loadconfig.py",
-                 "eventlog.py", "__init__.py", "static")
+                 "eventlog.py", "updatemanager.py", "__init__.py", "static")
 
 class MissingFileException(Exception):
     def __init__(self, sDir, sFile, sMsg):
