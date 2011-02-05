@@ -13,6 +13,8 @@ import tarfile
 import time
 import urllib
 
+import buildassignment
+
 VERSIONS_DIR_PATH = path.join(path.dirname(path.abspath(__file__)), "versions")
 TARBALL_DIR_PATH = path.join(VERSIONS_DIR_PATH, "tarballs")
 BACKUP_DIR_PATH = path.join(VERSIONS_DIR_PATH, "backups")
@@ -112,6 +114,24 @@ def clean_downloads():
         if TARBALL_RE.match(sFilename) is not None:
             sFullPath = path.join(TARBALL_DIR_PATH, sFilename)
             os.unlink(sFullPath)
+
+def splitall(s):
+    listComp = []
+    while s:
+        sPref,sBase = path.split(s)
+        listComp.append(sBase)
+        s = sPref
+    listComp.reverse()
+    return listComp
+
+def rootname(s):
+    listAll = splitall(s)
+    if len(listAll) >= 2:
+        return listAll[1]
+    return ""
+
+def is_relevant_file(s):
+    return rootname(s) in buildassignment.TFUTILS_FILES
              
 def check_for_updates(dictOriginConfig=None,sBranchType="master"):
     if dictOriginConfig is None:
@@ -124,10 +144,12 @@ def check_for_updates(dictOriginConfig=None,sBranchType="master"):
 def unpack_tarball(sTarballFilename, sUnpackOnto, sUser, sRepo):
     sReSrc = r'^%s-%s-\w+' % (re.escape(sUser), re.escape(sRepo))
     rePrefix = re.compile(sReSrc)
+    sPref = "tfutils"
     tf = tarfile.open(sTarballFilename)
     for ti in tf.getmembers():
-        ti.name = rePrefix.sub("tfutils",ti.name,1)
-        tf.extract(ti,sUnpackOnto)
+        ti.name = rePrefix.sub(sPref,ti.name,1)
+        if is_relevant_file(ti.name):
+            tf.extract(ti,sUnpackOnto)
         
 def backup_name():
     dt = datetime.datetime.now()
