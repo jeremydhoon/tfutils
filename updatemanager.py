@@ -15,10 +15,12 @@ import urllib
 
 VERSIONS_DIR_PATH = path.join(path.dirname(path.abspath(__file__)), "versions")
 TARBALL_DIR_PATH = path.join(VERSIONS_DIR_PATH, "tarballs")
+BACKUP_DIR_PATH = path.join(VERSIONS_DIR_PATH, "backups")
 ORIGIN_CONFIG_PATH = path.join(VERSIONS_DIR_PATH, "origin.js")
 VERSIONS_INFO_PATH = path.join(VERSIONS_DIR_PATH, "versioninfo.js")
 GITHUB_DOMAIN = "github.com"
 UNPACK_DIR_PATH = path.dirname(path.dirname(path.abspath(__file__)))
+BACKUP_DIR_PATH = path.dirname(path.abspath(__file__))
 
 TARBALL_RE = re.compile(r"^tarball_\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2}"
                         r"\.tar\.gz$")
@@ -98,8 +100,9 @@ def download_tarball(dictOriginConfig,sBranchType):
     sFilename = tarball_filename()
     if not path.exists(TARBALL_DIR_PATH):
         os.makedirs(TARBALL_DIR_PATH)
-    urllib.urlretrieve(sUrl, path.join(TARBALL_DIR_PATH, sFilename))
-    return sFilename
+    sFullFilename = path.join(TARBALL_DIR_PATH, sFilename)
+    urllib.urlretrieve(sUrl, sFullFilename)
+    return sFullFilename
 
 def clean_downloads():
     for sFilename in os.listdir(TARBALL_DIR_PATH):
@@ -113,17 +116,42 @@ def check_for_updates():
     cmtVersion = load_version_commit()
     return is_update_available(cmtLatest,cmtVersion)
 
-def unpack_tarball(sTarballFilename, sUnpackOnto):
+def unpack_tarball(sTarballFilename, sUnpackOnto, sUser, sRepo):
+    sReSrc = r'^%s-%s-\w+' % (re.escape(sUser), re.escape(sRepo))
+    rePrefix = re.compile(sReSrc)
     tf = tarfile.open(sTarballFilename)
-    tf.extractall(sUnpackOnto)
+    for ti in tf.getmembers():
+        ti.name = rePrefix.sub("tfutils",ti.name,1)
+        tarfile.extract(ti)
+        
+def backup_name():
+    dt = datetime.datetime.now()
+    return ("backup_%04d_%02d_%02d_%02d_%02d_%02d.tar.gz" %
+            (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second))
+
+def backup_current(sRoot):
+    if not path.exists(BACKUP_DIR_PATH):
+        os.makedirs(BACKUP_DIR_PATH)
+    sFullFilename = path.join(BACKUP_DIR_PATH, backup_name())
+    tf = tarfile.open(sFullFilename,"w:gz")
+    tf.add(sRoot, path.basename(sRoot))
+    tf.close()
+    return sFullFilename
+
+def update_version_info(cmt,sPath=VERSIONS_INFO_PATH):
+    dictJs = cmt.to_json()
+    with open(sPath, "wb") as outfile:
+        json.dump(outfile,dictJs)
 
 def deploy_updates():
     dictOriginConfig = load_origin_config()
     sFilename = download_tarball(dictOriginConfig,"master")
-    unpack_tarball(sFilename, UNPACK_DIR_PATH)
+    unpack_tarball(sFilename, UNPACK_DIR_PATH, dictOriginConfig["user"],
+                   dictOriginConfig["repo"])
 
 def main(argv):
-    print check_for_updates()
+    #print check_for_updates()
+    print backup_current(BACKUP_DIR_PATH)
     deploy_updates()
 
 if __name__ == "__main__":
