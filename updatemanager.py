@@ -121,8 +121,7 @@ def unpack_tarball(sTarballFilename, sUnpackOnto, sUser, sRepo):
     rePrefix = re.compile(sReSrc)
     tf = tarfile.open(sTarballFilename)
     for ti in tf.getmembers():
-        ti.name = rePrefix.sub("tfutils",ti.name,1)
-        tarfile.extract(ti)
+        tf.extract(ti,rePrefix.sub("tfutils",ti.name,1))
         
 def backup_name():
     dt = datetime.datetime.now()
