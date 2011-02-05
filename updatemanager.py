@@ -24,10 +24,13 @@ BACKUP_SOURCE_DIR_PATH = path.dirname(path.abspath(__file__))
 
 TARBALL_RE = re.compile(r"^tarball_\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2}"
                         r"\.tar\.gz$")
+TIMEZONE_RE = re.compile(r"[+]|[-]\d{2}[:]?\d{2}$")
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 def parse_dt(sDt):
-    return datetime.datetime.strptime(sDt.rsplit('-',1)[0], DATETIME_FORMAT)
+    sDtClean,sTz = TIMEZONE_RE.split(sDt, 1)
+    # TODO(jhoon): incorporate the timezone information.
+    return datetime.datetime.strptime(sDtClean, DATETIME_FORMAT)
 
 class Commit(object):
     def __init__(self, id, sMessage, dt):
@@ -36,7 +39,7 @@ class Commit(object):
         self.dt = dt
     def to_json(self):
         return {"id":self.id, "message": self.sMessage,
-                "committed_date": self.dt.isoformat()}
+                "committed_date": self.dt.isoformat() + "-0000"}
     @classmethod
     def from_json(self, dictCommit):
         dt = parse_dt(dictCommit["committed_date"])
@@ -90,7 +93,7 @@ def latest_commit(dictOriginConfig, sBranchType):
     return github_last_commit(sUser,sRepo,sBranch)
 
 def is_update_available(cmtLatest,cmtVersion):
-    return cmtLatest.dt > cmtVersion.dt
+    return cmtLatest if cmtLatest.dt > cmtVersion.dt else None
 
 def download_tarball(dictOriginConfig,sBranchType):
     sUser = dictOriginConfig["user"]
@@ -110,10 +113,12 @@ def clean_downloads():
             sFullPath = path.join(TARBALL_DIR_PATH, sFilename)
             os.unlink(sFullPath)
              
-def check_for_updates():
-    dictOriginConfig = load_origin_config()
-    cmtLatest = latest_commit(dictOriginConfig, "master")
+def check_for_updates(dictOriginConfig=None,sBranchType="master"):
+    if dictOriginConfig is None:
+        dictOriginConfig = load_origin_config()
+    cmtLatest = latest_commit(dictOriginConfig, sBranchType)
     cmtVersion = load_version_commit()
+    print cmtLatest,cmtVersion
     return is_update_available(cmtLatest,cmtVersion)
 
 def unpack_tarball(sTarballFilename, sUnpackOnto, sUser, sRepo):
@@ -148,18 +153,51 @@ def backup_current(sRoot):
 def update_version_info(cmt,sPath=VERSIONS_INFO_PATH):
     dictJs = cmt.to_json()
     with open(sPath, "wb") as outfile:
-        json.dump(outfile,dictJs)
+        json.dump(dictJs,outfile)
 
 def deploy_updates():
     dictOriginConfig = load_origin_config()
-    sFilename = download_tarball(dictOriginConfig,"master")
+    sBranchType = "master"
+    cmt = check_for_updates(dictOriginConfig, sBranchType)
+    if cmt is None:
+        return False
+    sFilename = download_tarball(dictOriginConfig, sBranchType)
     unpack_tarball(sFilename, UNPACK_DIR_PATH, dictOriginConfig["user"],
                    dictOriginConfig["repo"])
+    update_version_info(cmt)
+    return True
 
 def main(argv):
-    #print check_for_updates()
-    print backup_current(BACKUP_SOURCE_DIR_PATH)
-    #deploy_updates()
+    import optparse
+    parser = optparse.OptionParser()
+    parser.add_option("-c", "--check", action="store_true", dest="check",
+                      help="check for updates")
+    parser.add_option("-b", "--backup", action="store_true", dest="backup",
+                      help="create a backup tarball")
+    parser.add_option("-r", "--remove-downloaded", action="store_true",
+                      dest="remove_downloaded")
+    parser.add_option("-d", "--deploy", action="store_true",
+                      dest="deploy")
+    opts,args = parser.parse_args(argv)
+    if opts.check:
+        cmt = check_for_updates()
+        if cmt is None:
+            print "No updates available."
+        else:
+            sDt = cmt.dt.strftime("%B %d, %Y at %I:%M %p")
+            print "Update available, released %s" % sDt
+    if opts.backup:
+        sFilename = backup_current(BACKUP_SOURCE_DIR_PATH)
+        print "Backup created at %s" % sFilename
+    if opts.remove_downloaded:
+        clean_downloads()
+    if opts.deploy:
+        if not deploy_updates():
+            print "No updates found."
+            return 1
+        print "Update successful."
+    return 0
+        
 
 if __name__ == "__main__":
     import sys
