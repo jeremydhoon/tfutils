@@ -8,6 +8,7 @@ import datetime
 import json
 import os
 from os import path
+import re
 import time
 import urllib
 
@@ -16,6 +17,9 @@ TARBALL_DIR_PATH = path.join(VERSIONS_DIR_PATH, "tarballs")
 ORIGIN_CONFIG_PATH = path.join(VERSIONS_DIR_PATH, "origin.js")
 VERSIONS_INFO_PATH = path.join(VERSIONS_DIR_PATH, "versioninfo.js")
 GITHUB_DOMAIN = "github.com"
+
+TARBALL_RE = re.compile(r"^tarball_\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2}"
+                        r"\.tar\.gz$")
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 def parse_dt(sDt):
@@ -95,6 +99,12 @@ def download_tarball(dictOriginConfig,sBranchType):
     urllib.urlretrieve(sUrl, path.join(TARBALL_DIR_PATH, sFilename))
     return sFilename
 
+def clean_downloads():
+    for sFilename in os.listdir(TARBALL_DIR_PATH):
+        if TARBALL_RE.match(sFilename) is not None:
+            sFullPath = path.join(TARBALL_DIR_PATH, sFilename)
+            os.unlink(sFullPath)
+             
 def check_for_updates():
     dictOriginConfig = load_origin_config()
     cmtLatest = latest_commit(dictOriginConfig, "master")
