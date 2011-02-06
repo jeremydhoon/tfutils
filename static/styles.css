@@ -145,8 +145,11 @@ div.task, div.test {
     margin-bottom: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
-    cursor: pointer;
 /*    height: 36px;*/
+}
+
+div.test {
+    cursor: pointer;
 }
 
 div.task_description {
