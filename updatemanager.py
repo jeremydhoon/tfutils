@@ -176,7 +176,12 @@ def update_version_info(cmt,sPath=VERSIONS_INFO_PATH):
     with open(sPath, "wb") as outfile:
         json.dump(dictJs,outfile)
 
+def has_git(sPath=BACKUP_SOURCE_DIR_PATH):
+    return path.exists(path.join(sPath, ".git"))      
+
 def deploy_updates():
+    if has_git():
+        return False
     dictOriginConfig = load_origin_config()
     sBranchType = "master"
     cmt = check_for_updates(dictOriginConfig, sBranchType)
@@ -199,7 +204,14 @@ def main(argv):
                       dest="remove_downloaded")
     parser.add_option("-d", "--deploy", action="store_true",
                       dest="deploy")
+    parser.add_option("-g", "--git", action="store_true", dest="git",
+                      help="determine if this is a git working copy.")
     opts,args = parser.parse_args(argv)
+    if opts.git:
+        if has_git():
+            print "This is a git working copy."
+        else:
+            print "Not a git working copy."
     if opts.check:
         cmt = check_for_updates()
         if cmt is None:
