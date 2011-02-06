@@ -13,7 +13,7 @@ import tarfile
 import time
 import urllib
 
-import buildassignment
+import modules
 
 VERSIONS_DIR_PATH = path.join(path.dirname(path.abspath(__file__)), "versions")
 TARBALL_DIR_PATH = path.join(VERSIONS_DIR_PATH, "tarballs")
@@ -131,7 +131,7 @@ def rootname(s):
     return ""
 
 def is_relevant_file(s):
-    return rootname(s) in buildassignment.TFUTILS_FILES
+    return rootname(s) in modules.TFUTILS_FILES
              
 def check_for_updates(dictOriginConfig=None,sBranchType="master"):
     if dictOriginConfig is None:

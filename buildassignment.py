@@ -17,12 +17,11 @@ import tarfile
 import unittest
 
 import loadconfig
+import modules
 import publish
 import tftask
 
 MODULE_KEYS = ("testmodule", "workmodule", "taskmodule",)
-TFUTILS_FILES = ("serveui.py", "tftask.py", "monitortests.py", "loadconfig.py",
-                 "eventlog.py", "updatemanager.py", "__init__.py", "static")
 
 class MissingFileException(Exception):
     def __init__(self, sDir, sFile, sMsg):
@@ -109,7 +108,7 @@ def copy_tfutils(sDestDir):
     sDestTfUtils = path.join(sDestDir, "tfutils")
     if not path.isdir(sDestTfUtils):
         os.makedirs(sDestTfUtils)
-    for sTreeSrcSuff in TFUTILS_FILES:
+    for sTreeSrcSuff in modules.TFUTILS_FILES:
         sTreeSrc = path.join(sLocalSrcDir,sTreeSrcSuff)
         if path.isfile(sTreeSrc):
             shutil.copy(sTreeSrc, path.join(sDestTfUtils,sTreeSrcSuff))
