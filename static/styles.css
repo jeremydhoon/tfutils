@@ -97,6 +97,21 @@ div.task_run_holder {
     margin-right: 12px;
 }
 
+div.task_error_message {
+    border: 3px solid red;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: smaller;
+    color: red;
+    border-radius: 10px;
+    background-color: #FFDDDD;    
+    margin-bottom: 4px;
+}
+
+div.task_error_dismiss {
+    float: right;
+}
+
 div.test_expand {
     float: left;
     font-size: 12px;

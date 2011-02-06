@@ -118,6 +118,7 @@ var TfUtils = (function() {
 	var jError = $("<pre class='task_error collapsed code'/>");
 	var jConsole = $("<pre class='task_console collapsed code'/>");
 	var jRunHolder = $("<div class='task_run_holder'/>");
+	var jUiError = $("<div class='task_ui_error'/>");
 	
 	jTitleHolder.text(sName);
 	
@@ -139,6 +140,7 @@ var TfUtils = (function() {
 	    jDescription.text(dictTaskProperties.description);
 	    jTask.append(jDescription);
 	}
+	jTask.append(jUiError);
 	jTask.append(jError);
 	jTask.append(jConsole);
 	jTask.append(jTaskContent);
@@ -200,6 +202,31 @@ var TfUtils = (function() {
 	    jRunHolder.find('a').hide();
 	    runTask(sId);
 	});
+	tk.addError = function(xhr, sStatus, exn) {
+	    var jErrorMsg = $("<div class='task_error_message'/>");
+	    var jErrorText = $("<span class='task_error_text'/>");
+	    var jDismissHolder = $("<div class='task_error_dismiss' />");
+	    var jDismiss = $("<a class='button' href=''>Dismiss</a>");
+	    
+	    jDismiss.click(function(event) {
+		event.preventDefault();
+		jErrorMsg.fadeOut(300, jErrorMsg.remove);
+	    });
+	    jDismissHolder.append(jDismiss);
+
+	    var sMsgBase = "An internal error occurred: ";
+	    var sCompleteError = sStatus + " (" + (xhr.status || "") + ")";
+	    var sMsg = (sMsgBase + '"' +
+			(exn ? exn + " (" + sCompleteStatus + ")"
+			 : sCompleteError)
+			+ '"');
+	    jErrorText.text(sMsg);
+	    jErrorMsg.append(jErrorText);
+
+	    jErrorMsg.append(jDismissHolder);
+	    jErrorMsg.append($("<div class='clear'/>"));
+	    jUiError.append(jErrorMsg);
+	};
 
 	dictTask[sId] = tk;
 	getTaskHolder().append(jTask);
@@ -230,16 +257,24 @@ var TfUtils = (function() {
 
     function runTask(sTask) {
 	var tk = dictTask[sTask];
-	function wrapper(json) {
+	function cleanup() {
 	    tk.j.removeClass("running");
 	    tk.button.show();
+	}
+	function handleSuccess(json) {
+	    cleanup();
 	    tk.cb(json);
+	}
+	function handleError(xhr,sStatus,exn) {
+	    cleanup();
+	    tk.addError(xhr,sStatus,exn);
 	}
 	$.ajax({
 	    type: "POST",
 	    url: "/task/" + tk.id + "/",
 	    data: null,
-	    success: wrapper, 
+	    success: handleSuccess, 
+	    error: handleError,
 	    dataType: "json",
 	    timeout: 1000.0 * 60.0 * 5.0 // five minute timeout
 	});
