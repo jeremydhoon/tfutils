@@ -111,7 +111,11 @@ def copy_tfutils(sDestDir):
     for sTreeSrcSuff in modules.TFUTILS_FILES:
         sTreeSrc = path.join(sLocalSrcDir,sTreeSrcSuff)
         if path.isfile(sTreeSrc):
-            shutil.copy(sTreeSrc, path.join(sDestTfUtils,sTreeSrcSuff))
+            sDest = path.join(sDestTfUtils,sTreeSrcSuff)
+            sDestDir = path.dirname(sDest)
+            if not path.isdir(sDestDir):
+                os.makedirs(sDestDir)
+            shutil.copy(sTreeSrc, sDest)
         else:
             shutil.copytree(path.join(sLocalSrcDir,sTreeSrcSuff),
                             path.join(sDestTfUtils,sTreeSrcSuff))
