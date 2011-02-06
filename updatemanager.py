@@ -138,7 +138,6 @@ def check_for_updates(dictOriginConfig=None,sBranchType="master"):
         dictOriginConfig = load_origin_config()
     cmtLatest = latest_commit(dictOriginConfig, sBranchType)
     cmtVersion = load_version_commit()
-    print cmtLatest,cmtVersion
     return is_update_available(cmtLatest,cmtVersion)
 
 def unpack_tarball(sTarballFilename, sUnpackOnto, sUser, sRepo):
