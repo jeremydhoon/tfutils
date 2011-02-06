@@ -66,7 +66,7 @@ def github_last_commit(sUser,sRepo,sBranch):
     finally:
         infile.close()
     listCommit = map(Commit.from_json, dictJson["commits"])
-    listCommit.sort(lambda a,b: -cmp(b.dt,a.dt))
+    listCommit.sort(lambda a,b: -cmp(a.dt,b.dt))
     return (listCommit and listCommit[0]) or None
 
 def tarball_filename():
