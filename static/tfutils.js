@@ -5,6 +5,8 @@ var TfUtils = (function() {
     var dictTask = {};
     
     var jTestResults = $("<span/>");
+    var jUpdateNotification = $("<div id='update_notification'" +
+				" class='collapsed'/>");
 
     function getTestHolder() {
 	return $("div#test_results");
@@ -397,11 +399,71 @@ var TfUtils = (function() {
 	$.map(dictData.listTest, buildTest);
     }
 
+    function checkForUpdates() {
+	function handleSuccess(json) {
+	    if (json) {
+		var jFound = $("<div class='updates_found'/>");
+		var jMsgHolder = $("<span class='update_msg_holder'></span>");
+		var jUpdateButton = $("<a href='' class='button'/>");
+		jUpdateButton.text("Install Updates");
+		jUpdateButton.click(function(event) {
+		    event.preventDefault();
+		    getUpdates();
+		});
+
+		var sMsg = [
+		    "Updates are available for this interface."
+		].join(" ");
+		jMsgHolder.text(sMsg);
+		jFound.append(jMsgHolder);
+		jFound.append($("<span>&nbsp</span>"));
+		jFound.append(jUpdateButton);
+		
+		jUpdateNotification.append(jFound);
+		jUpdateNotification.slideDown(); // we might want this hidden
+	    }
+	}
+	$.ajax({
+	    type: "POST",
+	    url: "/updates/check/",
+	    success: handleSuccess, 
+	    dataType: "json"	    
+	});
+    }
+
+    function getUpdates() {
+	function handleSuccess(json) {
+	    if (json.success) {
+		shutdown();
+	    } else {
+		alert("Failed to install updates.");
+	    }
+	}
+	$.ajax({
+	    type: "POST",
+	    url: "/updates/install/",
+	    success: handleSuccess,
+	    dataType: "json",
+	    // 10 minute timeout, just to be sure.
+	    timeout: 1000.0 * 60.0 * 10.0
+	});
+    }
+
+    function shutdown() {
+	var jDialog = $("<div class='shutdown_dialog collapsed'/>");
+	jDialog.text("Updates were successfully installed. "
+		     + "Please restart the interface server.");
+	jUpdateNotification.append(jDialog);
+	jDialog.dialog({modal:true, draggable:false, resizeable: false});
+    }
+
     function load() {
+	$("body").prepend(jUpdateNotification);
 	$("div#tabs").tabs();
 	loadInitialData(setInitialUi);
 	$("span#tab_test_lbl").append(jTestResults);
 	buildRunAllButton()
+	checkForUpdates();
     }
 
     return {load: load};

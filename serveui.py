@@ -24,15 +24,17 @@ import eventlog
 import loadconfig
 import monitortests
 import tftask
+import updatemanager
 
 DEFAULT_PORT = 14512
 STATIC_CONTENT_PREFIX = "static"
 
 STATIC_RE = re.compile(r'^[/]' + STATIC_CONTENT_PREFIX
                        + r'[/](?P<sStaticPath>.*)$')
-TEST_RE = re.compile(r'[/]test/(?P<sCommand>[^/]*)[/]$')
-METADATA_RE = re.compile(r'[/]metadata[/]$')
-TASK_RE = re.compile(r'[/]task/(?P<sTask>[^/]*)[/]$')
+TEST_RE = re.compile(r'^[/]test/(?P<sCommand>[^/]*)[/]$')
+METADATA_RE = re.compile(r'^[/]metadata[/]$')
+TASK_RE = re.compile(r'^[/]task/(?P<sTask>[^/]*)[/]$')
+UPDATES_RE = re.compile(r'^[/]updates/(?P<sUpdateTask>[^/]*)[/]$')
 
 GLOBAL_STATE = {}
 
@@ -123,6 +125,14 @@ def serve_task(req, sTask):
         raise ValueError("No such task: %s" % sTask)
     return json.dumps(dictTask[sTask].run())
 
+def serve_updates(req, sUpdateTask):
+    if sUpdateTask == "check":
+        cmt = updatemanager.check_for_updates()
+        return json.dumps(cmt and cmt.to_json())
+    elif sUpdateTask == "install":
+        return json.dumps({"success": updatemanager.deploy_updates()})
+    return None
+
 class TaskRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_safe_request(self, listHandlers):
         self.expand_aliases()
@@ -150,7 +160,8 @@ class TaskRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             (serve_test,TEST_RE),
             (serve_metadata,METADATA_RE)])
     def do_POST(self):
-        self.do_safe_request([(serve_test,TEST_RE), (serve_task,TASK_RE)])
+        self.do_safe_request([(serve_test,TEST_RE), (serve_task,TASK_RE),
+                              (serve_updates, UPDATES_RE)])
     def expand_aliases(self):
         if self.path in dictAlias:
             self.path = dictAlias[self.path]

@@ -214,11 +214,20 @@ div#footer {
     color: #444444;
 }
 
-div#omni a.button {
+div#omni a.button, a.button {
     color: #1C94C4;
     text-decoration: none;
 }
 
-div#omni a.button:hover {
+div#omni a.button:hover, a.button:hover {
     color: #EB8F00;
+}
+
+div#update_notification {
+    border: 4px solid #F6A828;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    padding: 8px;
+    text-align: center;
+    color: #444444;
 }
