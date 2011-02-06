@@ -187,6 +187,7 @@ def deploy_updates():
     cmt = check_for_updates(dictOriginConfig, sBranchType)
     if cmt is None:
         return False
+    backup_current(BACKUP_SOURCE_DIR_PATH)
     sFilename = download_tarball(dictOriginConfig, sBranchType)
     unpack_tarball(sFilename, UNPACK_DIR_PATH, dictOriginConfig["user"],
                    dictOriginConfig["repo"])
