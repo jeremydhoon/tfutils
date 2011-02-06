@@ -121,7 +121,7 @@ var TfUtils = (function() {
 	
 	jTitleHolder.text(sName);
 	
-	jRunHolder.append($("<a href=''/>").text("Run"));
+	jRunHolder.append($("<a class='button' href=''/>").text("Run"));
 	jHeader.append(jTitleHolder);
 	jHeader.append(jRunHolder);
 
@@ -286,7 +286,7 @@ var TfUtils = (function() {
     }
 
     function buildRunAllButton() {
-	var jButton = $("<a href=''/>").text("Run All");
+	var jButton = $("<a class='button' href=''/>").text("Run All");
 	var jHolder = $("<div id='run_all' />");
 	jHolder.append(jButton);
 	function cb(event) {
