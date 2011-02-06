@@ -197,10 +197,11 @@ var TfUtils = (function() {
 	tk.button = jRunHolder.find('a');
 	tk.button.click(function(event) {
 	    event.preventDefault();
-	    jTaskContent.slideUp();
-	    jTask.addClass("running");
-	    jRunHolder.find('a').hide();
-	    runTask(sId);
+	    jTaskContent.slideUp(500, function(){
+		jTask.addClass("running");
+		jRunHolder.find('a').hide();
+		runTask(sId);
+	    });
 	});
 	tk.addError = function(xhr, sStatus, exn) {
 	    var jErrorMsg = $("<div class='task_error_message'/>");
