@@ -86,14 +86,6 @@ div#run_all {
     font-weight: bold;
 }
 
-div#run_all > a {
-   color: #1C94C4;
-}
-
-div#run_all > a:hover {
-    color: #EB8F00;
-}
-
 div#run_all_holder {
     font-size: 20px;
     margin-top: 8px;
@@ -103,14 +95,6 @@ div#run_all_holder {
 div.task_run_holder {
     float: right;
     margin-right: 12px;
-}
-
-div.task_run_holder > a {
-    color: #1C94C4;
-}
-
-div.task_run_holder > a:hover {
-    color: #EB8F00;
 }
 
 div.test_expand {
@@ -212,11 +196,11 @@ div#footer {
     color: #444444;
 }
 
-div#footer > a:hover {
-    color: #EB8F00;    
-}
-
-div#footer > a {
+div#omni a.button {
     color: #1C94C4;
+    text-decoration: none;
 }
 
+div#omni a.button:hover {
+    color: #EB8F00;
+}
