@@ -409,6 +409,8 @@ var TfUtils = (function() {
 		jUpdateButton.click(function(event) {
 		    event.preventDefault();
 		    getUpdates();
+		    jUpdateNotification.slideUp();
+		    jFound.remove();
 		});
 
 		var sMsg = [
