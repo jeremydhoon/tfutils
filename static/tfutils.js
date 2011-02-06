@@ -235,7 +235,14 @@ var TfUtils = (function() {
 	    tk.button.show();
 	    tk.cb(json);
 	}
-	$.post("/task/" + tk.id + "/", null, wrapper, "json");
+	$.ajax({
+	    type: "POST",
+	    url: "/task/" + tk.id + "/",
+	    data: null,
+	    success: wrapper, 
+	    dataType: "json",
+	    timeout: 1000.0 * 60.0 * 5.0 // five minute timeout
+	});
     }
 
     function runTest(sTest) {
