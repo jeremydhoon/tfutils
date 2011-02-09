@@ -249,7 +249,8 @@ var TfUtils = (function() {
 	$.each(listEdges, function(_,listE) {
 	    var nodeSrc = addNode(listE[0]);
 	    var nodeDest = addNode(listE[1]);
-	    graph.newEdge(nodeSrc, nodeDest, {color: '#FF0000'});
+	    var dictProperties = listE[2] || {color: '#FF0000'};
+	    graph.newEdge(nodeSrc, nodeDest, dictProperties);
 	});
 	return graph;
     }
