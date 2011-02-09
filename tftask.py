@@ -59,8 +59,9 @@ class GraphTask(BaseTask):
     def get_type(self):
         return "graph"
     def validate(self, listPair):
-        for sSrc,sDest in listPair:
-            pass
+        for tpl in listPair:
+            if len(tpl) < 2:
+                return False
         return True
 
 class ChartTask(BaseTask):
