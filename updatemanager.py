@@ -5,7 +5,10 @@ updatemanager.py -- checks for updates to tfutils on GitHub and retrieves them.
 """
 
 import datetime
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import os
 from os import path
 import re
@@ -78,15 +81,13 @@ def github_tarball(sUser,sRepo,sBranch):
     return "https://" + path.join(GITHUB_DOMAIN, sUser, sRepo, "tarball",
                                   sBranch)
 
-def load_origin_config(sPath=ORIGIN_CONFIG_PATH):
-    with open(sPath) as infile:
-        return json.load(infile)
+def load_origin_config(sPath=ORIGIN_CONFIG_PATH):    
+    return json.load(open(sPath))
 
 def load_version_commit(sPath=VERSIONS_INFO_PATH):
     if not path.isfile(sPath):
         return Commit.empty()
-    with open(sPath) as infile:
-        return Commit.from_json(json.load(infile))
+    return Commit.from_json(json.load(open(sPath)))
 
 def latest_commit(dictOriginConfig, sBranchType):
     sUser = dictOriginConfig["user"]
@@ -173,8 +174,7 @@ def backup_current(sRoot):
 
 def update_version_info(cmt,sPath=VERSIONS_INFO_PATH):
     dictJs = cmt.to_json()
-    with open(sPath, "wb") as outfile:
-        json.dump(dictJs,outfile)
+    json.dump(dictJs,open(sPath, "wb"))
 
 def has_git(sPath=BACKUP_SOURCE_DIR_PATH):
     return path.exists(path.join(sPath, ".git"))      

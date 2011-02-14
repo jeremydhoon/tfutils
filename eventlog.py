@@ -56,8 +56,11 @@ def build_db(listSTmpl, conn):
             conn.execute(sTableSchema)
 
 def init():
-    with open_conn() as conn:
+    try:
+        conn = open_conn()
         build_db(SCHEMA_TEMPLATE, conn)
+    finally:
+        conn.close()       
 
 def add_invocation(conn, sTableName, sNameField, dictProperties):
     listRequiredFields = ["success"] + [sTmpl % sNameField
@@ -83,35 +86,39 @@ def add_invocation(conn, sTableName, sNameField, dictProperties):
     c = conn.cursor()
     c.execute(sSql, listFieldValues)
 
-def add_test_invocation(conn, dictProperties):
-    return add_invocation(conn, "test_invocation", "test", dictProperties)
+def add_test_invocation(dictProperties):
+    try:
+        conn = open_conn()
+        add_invocation(conn, "test_invocation", "test", dictProperties)
+    finally:
+        conn.close()
 
-def add_task_invocation(conn, dictProperties):
-    return add_invocation(conn, "task_invocation", "task", dictProperties)
+def add_task_invocation(dictProperties):
+    try:
+        conn = open_conn()
+        add_invocation(conn, "task_invocation", "task", dictProperties)
+    finally:
+        conn.close()
 
 def test_success(sTestName, ixTestId):
     dictProperties = {"success": True, "traceback": None,
                       "test_name": sTestName, "test_id": int(ixTestId)}
-    with open_conn() as conn:
-        return add_test_invocation(conn, dictProperties)
+    return add_test_invocation(dictProperties)
 
 def test_failure(sTestName, ixTestId, sTraceback):
     dictProperties = {"success": False, "traceback": sTraceback,
                       "test_name": sTestName, "test_id": int(ixTestId)}
-    with open_conn() as conn:
-        return add_test_invocation(conn, dictProperties)
+    return add_test_invocation(dictProperties)
 
 def task_success(sTaskName, ixTaskId):
     dictProperties = {"success": True, "traceback": None,
                       "task_name": sTaskName, "task_id": int(ixTaskId)}
-    with open_conn() as conn:
-        return add_task_invocation(conn, dictProperties)
+    return add_task_invocation(dictProperties)
 
 def task_failure(sTaskName, ixTaskId, sTraceback):
     dictProperties = {"success": False, "traceback": sTraceback,
                       "task_name": sTaskName, "task_id": int(ixTaskId)}
-    with open_conn() as conn:
-        return add_task_invocation(conn,dictProperties)
+    return add_task_invocation(dictProperties)
 
 def list_tests(conn):
     c = conn.execute("SELECT * FROM test_invocation")

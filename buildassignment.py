@@ -91,8 +91,11 @@ def clean_work_module(sDestDir,dictConfig):
         raise ValueError("Tests failed.")
     modwork = fileimport(dictConfig["workmodule"])
     sCode = publish.clean_module(modwork)
-    with open(path.join(sDestDir,dictConfig["workmodule"]), "wb") as outfile:
+    try:
+        outfile = open(path.join(sDestDir,dictConfig["workmodule"]), "wb")
         outfile.write(sCode)
+    finally:
+        outfile.close()
     sys.path.insert(0,sDestDir)
     del sys.modules[sWorkMod]
     reload(modtest)

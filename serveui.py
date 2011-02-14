@@ -92,8 +92,12 @@ def serve_static(req, sStaticPath):
     sFullPath = path.join(sStaticContent,sPath)
     if not path.isfile(sFullPath):
         raise ValueError("Not a file: %s" % sFullPath)
-    with open(sFullPath, 'rb') as infile:
-        return infile.read()
+    try:
+        infile = open(sFullPath, 'rb')
+        sContents = infile.read()
+    finally:
+        infile.close()
+    return sContents
 
 def serve_metadata(req):
     dictConfig = GLOBAL_STATE["dictConfig"]
@@ -145,7 +149,7 @@ class TaskRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     if sOut is not None:
                         self.wfile.write(sOut)
                         return
-            except Exception as e:
+            except Exception:
                 import traceback
                 self.send_error(500)
                 sTb = traceback.format_exc()
