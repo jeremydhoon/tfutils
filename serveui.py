@@ -194,7 +194,6 @@ def spawn(sDir, iPort, sStaticDirPath, sSelector, dblDelayMs=500):
         while True:
             tr.join(dblDelayMs)
     except KeyboardInterrupt:
-        httpd.shutdown()
         print "\nReceived SIGTERM, exiting..."
         sys.exit(-signal.SIGTERM)
         
