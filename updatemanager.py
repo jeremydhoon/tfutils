@@ -37,6 +37,10 @@ def parse_dt(sDt):
     # TODO(jhoon): incorporate the timezone information.
     return datetime.datetime.strptime(sDtClean, DATETIME_FORMAT)
 
+def urljoin(*listSParts):
+    sUrl = "/".join(listSParts)
+    return sUrl
+
 class Commit(object):
     def __init__(self, id, sMessage, dt):
         self.id = id
@@ -58,7 +62,7 @@ class Commit(object):
 
 def github_api_call(*listArgs):
     listSPieces = [GITHUB_DOMAIN, "api", "v2", "json"] + list(listArgs)
-    return "http://" + path.join(*listSPieces)
+    return "http://" + urljoin(*listSPieces)
 
 def github_last_commit(sUser,sRepo,sBranch):
     sUrl = github_api_call("commits", "list", sUser, sRepo, sBranch)
@@ -79,8 +83,7 @@ def tarball_filename():
     return "tarball_%04d_%02d_%02d_%02d_%02d_%02d.tar.gz" % tpl
 
 def github_tarball(sUser,sRepo,sBranch):
-    return "https://" + path.join(GITHUB_DOMAIN, sUser, sRepo, "tarball",
-                                  sBranch)
+    return "https://" + urljoin(GITHUB_DOMAIN,sUser,sRepo,"tarball",sBranch)
 
 def load_origin_config(sPath=ORIGIN_CONFIG_PATH):    
     return json.load(open(sPath))
