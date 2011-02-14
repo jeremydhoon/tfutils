@@ -67,7 +67,8 @@ def github_last_commit(sUser,sRepo,sBranch):
         infile = urllib.urlopen(sUrl)
         dictJson = json.load(infile)
     finally:
-        infile.close()
+        if infile is not None:
+            infile.close()
     listCommit = map(Commit.from_json, dictJson["commits"])
     listCommit.sort(lambda a,b: -cmp(a.dt,b.dt))
     return (listCommit and listCommit[0]) or None
