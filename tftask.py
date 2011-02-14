@@ -44,6 +44,8 @@ class BaseTask(object):
         try:
             sConsole,oOut = _capture_stdout(self.task)
             fValidation = self.validate(oOut)
+        except KeyboardInterrupt:
+            raise
         except:
             import traceback
             fValidation = False
@@ -78,3 +80,15 @@ def list_tasks(mod):
         if isinstance(o,type) and hasattr(o,"_IS_TASK"):
             listTask.append(o())
     return listTask
+
+def main(sModName="__main__"):
+    try:
+        import json
+    except:
+        import simplejson as json
+    mod = __import__(sModName)
+    listTask = list_tasks(mod)
+    for tk in listTask:
+        print json.dumps(tk.run(), indent=4)
+    return 0
+    
