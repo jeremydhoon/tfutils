@@ -13,6 +13,11 @@ if __name__ == "__main__":
     import doctest
     doctest.testmod()"""
 
+MAIN_FUNCTION = """
+if __name__ == "__main__":
+    import sys
+    sys.exit(main(sys.argv))"""
+
 class CodeObject(object):
     def __init__(self, sIn, sOut, iLine):
         self.sIn = sIn
@@ -70,14 +75,14 @@ def get_objects(mod):
             listCo.append(CodeObject(sSrc, sSrc, iLine))
     return listCo
 
-def dump_code_objects(listCo, fAddDoctest):
+def dump_code_objects(listCo, fAddMain):
     listCo.sort(lambda a,b: a.iLine - b.iLine)
     listS = ["#!/usr/bin/env python\n\n"]
     for co in listCo:
         listS.append(co.sOut)
         listS.append("\n")
-    if fAddDoctest:
-        listS.extend(("\n", DOCTEST_MOD, "\n"))
+    if fAddMain:
+        listS.extend(("\n", MAIN_FUNCTION, "\n"))
     return "".join(listS)
 
 def clean_module(mod):
