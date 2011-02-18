@@ -90,9 +90,11 @@ def clean_module(mod):
         
 def main(argv):
     import loadconfig
-    sys.path.append(loadconfig.get_config_dir())
-    import dtree
-    print dump_code_objects(get_objects(dtree), True)
+    sConfDir = loadconfig.get_config_dir()
+    sys.path.append(sConfDir)
+    dictConf = loadconfig.load_config_file(sConfDir)
+    mod = __import__(dictConf["workmodule"].rsplit('.',1)[0]) #import dtree
+    print dump_code_objects(get_objects(mod), True)
 
 if __name__ == "__main__":
     import sys
