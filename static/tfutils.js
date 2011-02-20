@@ -218,10 +218,9 @@ var TfUtils = (function() {
 	    jDismissHolder.append(jDismiss);
 
 	    var sMsgBase = "An internal error occurred: ";
-	    var sCompleteError = sStatus + " (" + (xhr.status || "") + ")";
 	    var sMsg = (sMsgBase + '"' +
-			(exn ? exn + " (" + sCompleteStatus + ")"
-			 : sCompleteError)
+			(exn ? exn.message + " (" + sStatus + ")"
+			 : sStatus)
 			+ '"');
 	    jErrorText.text(sMsg);
 	    jErrorMsg.append(jErrorText);
@@ -280,7 +279,7 @@ var TfUtils = (function() {
 	    success: handleSuccess, 
 	    error: handleError,
 	    dataType: "json",
-	    timeout: 1000.0 * 60.0 * 5.0 // five minute timeout
+	    timeout: 1000.0 * 60.0 * 10.0 // ten minute timeout
 	});
     }
 
