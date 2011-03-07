@@ -32,6 +32,8 @@ class BaseTask(object):
         return None
     def get_priority(self):
         return 0
+    def get_extra_data(self):
+        return None
     def validate(self, oOut):
         return None
     def task(self):
@@ -69,7 +71,16 @@ class GraphTask(BaseTask):
 class ChartTask(BaseTask):
     def get_type(self):
         return "chart"
-    
+
+class MultipleChartTask(BaseTask):
+  def __init__(self, num_charts):
+    self.num_charts = num_charts
+
+  def get_extra_data(self):
+    return self.num_charts
+
+  def get_type(self):
+    return "multiple_chart"
 
 def list_tasks(mod):
     if isinstance(mod,basestring):
